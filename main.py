@@ -1,11 +1,8 @@
 import telebot
 from telebot import types
 from cryptography.fernet import Fernet
-import base64
-import random
-import string
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -57,9 +54,11 @@ def vigenere_decipher(text, key):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "Привіт! Я бот для шифрування тексту. Виберіть команду: /encrypt або /decrypt")
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add("Шифрування", "Розшифрування")
+    bot.send_message(message.chat.id, "Привіт! Я бот для шифрування та розшифрування тексту. Виберіть одну з опцій:", reply_markup=markup)
 
-@bot.message_handler(commands=['encrypt'])
+@bot.message_handler(func=lambda message: message.text == "Шифрування")
 def choose_encryption_method(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     markup.add("AES", "Caesar", "Vigenere")
@@ -83,7 +82,7 @@ def process_encryption(message, method):
         return
     bot.send_message(message.chat.id, f"Зашифрований текст ({method}): {encrypted_text}")
 
-@bot.message_handler(commands=['decrypt'])
+@bot.message_handler(func=lambda message: message.text == "Розшифрування")
 def choose_decryption_method(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     markup.add("AES", "Caesar", "Vigenere")

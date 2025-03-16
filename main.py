@@ -28,29 +28,47 @@ def caesar_decipher(text, shift):
     return caesar_cipher(text, -shift)
 
 def generate_vigenere_key(text, key):
-    return (key * (len(text) // len(key))) + key[:len(text) % len(key)]
+    key = key.lower()
+    key_extended = []
+    key_index = 0
+
+    for char in text:
+        if char.isalpha():  # Додаємо тільки для букв, інші символи залишаються без змін
+            key_extended.append(key[key_index % len(key)])
+            key_index += 1
+        else:
+            key_extended.append(char)  # Пробіли та символи зберігаємо без змін
+
+    return "".join(key_extended)
 
 def vigenere_cipher(text, key):
-    key = generate_vigenere_key(text, key)
-    encrypted_text = ""
+    key_extended = generate_vigenere_key(text, key)
+    result = ""
+
     for i in range(len(text)):
         if text[i].isalpha():
-            shift = ord(key[i].lower()) - ord('a')
-            encrypted_text += caesar_cipher(text[i], shift)
+            shift_base = 65 if text[i].isupper() else 97
+            key_shift = ord(key_extended[i].lower()) - 97  # Зміщення за ключем
+            result += chr((ord(text[i]) - shift_base + key_shift) % 26 + shift_base)
         else:
-            encrypted_text += text[i]
-    return encrypted_text
+            result += text[i]
+
+    return result
 
 def vigenere_decipher(text, key):
-    key = generate_vigenere_key(text, key)
-    decrypted_text = ""
+    key_extended = generate_vigenere_key(text, key)
+    result = ""
+
     for i in range(len(text)):
         if text[i].isalpha():
-            shift = ord(key[i].lower()) - ord('a')
-            decrypted_text += caesar_cipher(text[i], -shift)
+            shift_base = 65 if text[i].isupper() else 97
+            key_shift = ord(key_extended[i].lower()) - 97  # Зміщення за ключем
+            result += chr((ord(text[i]) - shift_base - key_shift) % 26 + shift_base)
         else:
-            decrypted_text += text[i]
-    return decrypted_text
+            result += text[i]
+
+    return result
+
 
 def return_to_main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)

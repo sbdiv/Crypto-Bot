@@ -160,4 +160,5 @@ def process_decryption(message, method, key=None):
         bot.send_message(message.chat.id, "Помилка! Невірний формат або ключ.")
     return_to_main_menu(message.chat.id)
 
-bot.polling(none_stop=True)
+if __name__ == "__main__":
+    bot.polling(none_stop=True)

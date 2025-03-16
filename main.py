@@ -52,11 +52,14 @@ def vigenere_decipher(text, key):
             decrypted_text += text[i]
     return decrypted_text
 
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
+def return_to_main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     markup.add("Шифрування", "Розшифрування")
-    bot.send_message(message.chat.id, "Привіт! Я бот для шифрування та розшифрування тексту. Виберіть одну з опцій:", reply_markup=markup)
+    bot.send_message(chat_id, "Виберіть одну з опцій:", reply_markup=markup)
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    return_to_main_menu(message.chat.id)
 
 @bot.message_handler(func=lambda message: message.text == "Шифрування")
 def choose_encryption_method(message):
@@ -81,6 +84,7 @@ def process_encryption(message, method):
         bot.send_message(message.chat.id, "Невідомий метод шифрування.")
         return
     bot.send_message(message.chat.id, f"Зашифрований текст ({method}): {encrypted_text}")
+    return_to_main_menu(message.chat.id)
 
 @bot.message_handler(func=lambda message: message.text == "Розшифрування")
 def choose_decryption_method(message):
@@ -108,5 +112,6 @@ def process_decryption(message, method):
         bot.send_message(message.chat.id, f"Розшифрований текст ({method}): {decrypted_text}")
     except Exception as e:
         bot.send_message(message.chat.id, "Помилка! Невірний формат або ключ.")
+    return_to_main_menu(message.chat.id)
 
 bot.polling(none_stop=True)

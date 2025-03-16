@@ -70,16 +70,30 @@ def choose_encryption_method(message):
 
 def encrypt_text(message):
     method = message.text
-    msg = bot.send_message(message.chat.id, "Введіть текст для шифрування:")
-    bot.register_next_step_handler(msg, lambda msg: process_encryption(msg, method))
+    if method in ["Caesar", "Vigenere"]:
+        msg = bot.send_message(message.chat.id, "Введіть ключ для шифрування:")
+        bot.register_next_step_handler(msg, lambda msg: get_encryption_key(msg, method))
+    else:
+        msg = bot.send_message(message.chat.id, "Введіть текст для шифрування:")
+        bot.register_next_step_handler(msg, lambda msg: process_encryption(msg, method))
 
-def process_encryption(message, method):
+def get_encryption_key(message, method):
+    key = message.text
+    msg = bot.send_message(message.chat.id, "Введіть текст для шифрування:")
+    bot.register_next_step_handler(msg, lambda msg: process_encryption(msg, method, key))
+
+def process_encryption(message, method, key=None):
     if method == "AES":
         encrypted_text = cipher.encrypt(message.text.encode()).decode()
     elif method == "Caesar":
-        encrypted_text = caesar_cipher(message.text, 3)
+        try:
+            shift = int(key)
+            encrypted_text = caesar_cipher(message.text, shift)
+        except ValueError:
+            bot.send_message(message.chat.id, "Ключ для шифрування Цезаря повинен бути числом.")
+            return
     elif method == "Vigenere":
-        encrypted_text = vigenere_cipher(message.text, "SECRET")
+        encrypted_text = vigenere_cipher(message.text, key)
     else:
         bot.send_message(message.chat.id, "Невідомий метод шифрування.")
         return
@@ -95,17 +109,31 @@ def choose_decryption_method(message):
 
 def decrypt_text(message):
     method = message.text
-    msg = bot.send_message(message.chat.id, "Введіть текст для розшифрування:")
-    bot.register_next_step_handler(msg, lambda msg: process_decryption(msg, method))
+    if method in ["Caesar", "Vigenere"]:
+        msg = bot.send_message(message.chat.id, "Введіть ключ для розшифрування:")
+        bot.register_next_step_handler(msg, lambda msg: get_decryption_key(msg, method))
+    else:
+        msg = bot.send_message(message.chat.id, "Введіть текст для розшифрування:")
+        bot.register_next_step_handler(msg, lambda msg: process_decryption(msg, method))
 
-def process_decryption(message, method):
+def get_decryption_key(message, method):
+    key = message.text
+    msg = bot.send_message(message.chat.id, "Введіть текст для розшифрування:")
+    bot.register_next_step_handler(msg, lambda msg: process_decryption(msg, method, key))
+
+def process_decryption(message, method, key=None):
     try:
         if method == "AES":
             decrypted_text = cipher.decrypt(message.text.encode()).decode()
         elif method == "Caesar":
-            decrypted_text = caesar_decipher(message.text, 3)
+            try:
+                shift = int(key)
+                decrypted_text = caesar_decipher(message.text, shift)
+            except ValueError:
+                bot.send_message(message.chat.id, "Ключ для розшифрування Цезаря повинен бути числом.")
+                return
         elif method == "Vigenere":
-            decrypted_text = vigenere_decipher(message.text, "SECRET")
+            decrypted_text = vigenere_decipher(message.text, key)
         else:
             bot.send_message(message.chat.id, "Невідомий метод розшифрування.")
             return

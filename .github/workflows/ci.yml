@@ -46,21 +46,21 @@ jobs:
 
       # Крок 6: Збереження результатів тестів (JUnit)
       - name: Upload test results
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v3  # Оновлено до v3
         with:
           name: test-results
           path: test-results.xml
 
       # Крок 7: Збереження звіту про покриття коду (XML)
       - name: Upload coverage report (XML)
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v3  # Оновлено до v3
         with:
           name: coverage-report-xml
           path: coverage.xml
 
       # Крок 8: Збереження звіту про покриття коду (HTML)
       - name: Upload coverage report (HTML)
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v3  # Оновлено до v3
         with:
           name: coverage-report-html
           path: htmlcov
@@ -74,6 +74,6 @@ jobs:
 
       # Крок 10: Публікація покриття коду на Codecov
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action
+        uses: codecov/codecov-action@v3
         with:
           files: coverage.xml

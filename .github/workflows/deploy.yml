@@ -36,17 +36,17 @@ jobs:
           pip install bandit
           bandit -r .
 
-      - name: Run tests
-        run: |
-          pip install pytest
-          pytest test_bot.py
-
       - name: Debug info
         if: failure()
         run: |
           echo "Python version: $(python --version)"
           echo "Installed packages:"
           pip freeze
+          
+      - name: Run tests
+        run: |
+          pip install pytest
+          pytest test_bot.py
 
       - name: Run bot
         env:

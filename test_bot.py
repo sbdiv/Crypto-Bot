@@ -1,6 +1,6 @@
 import unittest
 from cryptography.fernet import Fernet
-from main import caesar_cipher, caesar_decipher, vigenere_cipher, vigenere_decipher
+from main import caesar_cipher, caesar_decipher, vigenere_cipher, vigenere_decipher, is_english
 
 
 KEY = Fernet.generate_key()

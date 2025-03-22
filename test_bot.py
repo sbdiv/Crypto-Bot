@@ -1,10 +1,28 @@
 import unittest
+from unittest.mock import patch, MagicMock
 from cryptography.fernet import Fernet
-from main import caesar_cipher, caesar_decipher, vigenere_cipher, vigenere_decipher, is_english
-
+from main import (
+    caesar_cipher,
+    caesar_decipher,
+    vigenere_cipher,
+    vigenere_decipher,
+    is_english,
+    return_to_main_menu,
+    choose_encryption_method,
+    encrypt_text,
+    get_encryption_key,
+    process_encryption,
+    choose_decryption_method,
+    decrypt_text,
+    get_decryption_key,
+    process_decryption,
+    bot,
+)
+from telebot import types  # Додано імпорт types
 
 KEY = Fernet.generate_key()
 cipher = Fernet(KEY)
+
 class TestCipherFunctions(unittest.TestCase):
 
     def test_caesar_cipher(self):
@@ -30,7 +48,6 @@ class TestCipherFunctions(unittest.TestCase):
         self.assertEqual(vigenere_decipher("Rijvs, Uyvjn!", "key"), "Hello, World!")
 
     def test_fernet_encryption(self):
-        # Тест для шифрування та дешифрування за допомогою Fernet
         text = "Test encryption!"
         encrypted = cipher.encrypt(text.encode())
         decrypted = cipher.decrypt(encrypted).decode()
@@ -41,6 +58,39 @@ class TestCipherFunctions(unittest.TestCase):
         self.assertFalse(is_english("Привіт світ"))
         self.assertFalse(is_english("こんにちは世界"))
         self.assertTrue(is_english("Good morning!"))
+
+    @patch('telebot.TeleBot.send_message')
+    def test_encrypt_text(self, mock_send_message):
+        message = MagicMock()
+        message.chat.id = 12345
+        message.text = "AES"
+        encrypt_text(message)
+        mock_send_message.assert_called_with(12345, "Введіть текст для шифрування:")
+
+    @patch('telebot.TeleBot.send_message')
+    def test_get_encryption_key(self, mock_send_message):
+        message = MagicMock()
+        message.chat.id = 12345
+        message.text = "key"
+        get_encryption_key(message, 'Caesar')
+        mock_send_message.assert_called_with(12345, "Введіть текст для шифрування:")
+
+
+    @patch('telebot.TeleBot.send_message')
+    def test_decrypt_text(self, mock_send_message):
+        message = MagicMock()
+        message.chat.id = 12345
+        message.text = "AES"
+        decrypt_text(message)
+        mock_send_message.assert_called_with(12345, "Введіть текст для розшифрування:")
+
+    @patch('telebot.TeleBot.send_message')
+    def test_get_decryption_key(self, mock_send_message):
+        message = MagicMock()
+        message.chat.id = 12345
+        message.text = "key"
+        get_decryption_key(message, 'Caesar')
+        mock_send_message.assert_called_with(12345, "Введіть текст для розшифрування:")
 
 if __name__ == "__main__":
     unittest.main()

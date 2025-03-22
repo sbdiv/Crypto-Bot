@@ -16,9 +16,15 @@ cipher = Fernet(KEY)
 
 def is_english(text):
     try:
+        # Використовуємо langdetect для визначення мови
         return detect(text) == 'en'
     except LangDetectException:
         return False
+
+    # Додатково перевіряємо, чи містить текст лише латинські символи
+    if re.match("^[A-Za-z0-9\s,.!?;:'\"-]*$", text):
+        return True
+    return False
 
 def caesar_cipher(text, shift):
     result = ""

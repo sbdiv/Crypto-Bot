@@ -3,7 +3,6 @@ from telebot import types
 from cryptography.fernet import Fernet
 import os
 from dotenv import load_dotenv
-from langdetect import detect, LangDetectException
 import string
 
 

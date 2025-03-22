@@ -7,12 +7,8 @@ from main import (
     vigenere_cipher,
     vigenere_decipher,
     is_english,
-    return_to_main_menu,
-    choose_encryption_method,
     encrypt_text,
     get_encryption_key,
-    process_encryption,
-    choose_decryption_method,
     decrypt_text,
     get_decryption_key,
     process_decryption,
@@ -91,6 +87,7 @@ class TestCipherFunctions(unittest.TestCase):
         message.text = "key"
         get_decryption_key(message, 'Caesar')
         mock_send_message.assert_called_with(12345, "Введіть текст для розшифрування:")
+
 
 if __name__ == "__main__":
     unittest.main()

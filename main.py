@@ -3,6 +3,7 @@ from telebot import types
 from cryptography.fernet import Fernet
 import os
 from dotenv import load_dotenv
+from langdetect import detect, LangDetectException
 
 load_dotenv()
 
@@ -12,6 +13,12 @@ bot = telebot.TeleBot(TOKEN)
 
 KEY = Fernet.generate_key()
 cipher = Fernet(KEY)
+
+def is_english(text):
+    try:
+        return detect(text) == 'en'
+    except LangDetectException:
+        return False
 
 def caesar_cipher(text, shift):
     result = ""
@@ -33,11 +40,11 @@ def generate_vigenere_key(text, key):
     key_index = 0
 
     for char in text:
-        if char.isalpha():  # Додаємо тільки для букв, інші символи залишаються без змін
+        if char.isalpha():
             key_extended.append(key[key_index % len(key)])
             key_index += 1
         else:
-            key_extended.append(char)  # Пробіли та символи зберігаємо без змін
+            key_extended.append(char)
 
     return "".join(key_extended)
 
@@ -48,7 +55,7 @@ def vigenere_cipher(text, key):
     for i in range(len(text)):
         if text[i].isalpha():
             shift_base = 65 if text[i].isupper() else 97
-            key_shift = ord(key_extended[i].lower()) - 97  # Зміщення за ключем
+            key_shift = ord(key_extended[i].lower()) - 97
             result += chr((ord(text[i]) - shift_base + key_shift) % 26 + shift_base)
         else:
             result += text[i]
@@ -62,13 +69,12 @@ def vigenere_decipher(text, key):
     for i in range(len(text)):
         if text[i].isalpha():
             shift_base = 65 if text[i].isupper() else 97
-            key_shift = ord(key_extended[i].lower()) - 97  # Зміщення за ключем
+            key_shift = ord(key_extended[i].lower()) - 97
             result += chr((ord(text[i]) - shift_base - key_shift) % 26 + shift_base)
         else:
             result += text[i]
 
     return result
-
 
 def return_to_main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -97,10 +103,19 @@ def encrypt_text(message):
 
 def get_encryption_key(message, method):
     key = message.text
+    if not is_english(key):
+        bot.send_message(message.chat.id, "Ключ повинен містити лише англійські літери.")
+        return_to_main_menu(message.chat.id)
+        return
     msg = bot.send_message(message.chat.id, "Введіть текст для шифрування:")
     bot.register_next_step_handler(msg, lambda msg: process_encryption(msg, method, key))
 
 def process_encryption(message, method, key=None):
+    if not is_english(message.text):
+        bot.send_message(message.chat.id, "Будь ласка, введіть текст англійською мовою.")
+        return_to_main_menu(message.chat.id)
+        return
+    
     if method == "AES":
         encrypted_text = cipher.encrypt(message.text.encode()).decode()
     elif method == "Caesar":
@@ -115,6 +130,7 @@ def process_encryption(message, method, key=None):
     else:
         bot.send_message(message.chat.id, "Невідомий метод шифрування.")
         return
+    
     bot.send_message(message.chat.id, f"Зашифрований текст ({method}): {encrypted_text}")
     return_to_main_menu(message.chat.id)
 
@@ -136,10 +152,19 @@ def decrypt_text(message):
 
 def get_decryption_key(message, method):
     key = message.text
+    if not is_english(key):
+        bot.send_message(message.chat.id, "Ключ повинен містити лише англійські літери.")
+        return_to_main_menu(message.chat.id)
+        return
     msg = bot.send_message(message.chat.id, "Введіть текст для розшифрування:")
     bot.register_next_step_handler(msg, lambda msg: process_decryption(msg, method, key))
 
 def process_decryption(message, method, key=None):
+    if not is_english(message.text):
+        bot.send_message(message.chat.id, "Будь ласка, введіть текст англійською мовою.")
+        return_to_main_menu(message.chat.id)
+        return
+    
     try:
         if method == "AES":
             decrypted_text = cipher.decrypt(message.text.encode()).decode()
@@ -155,9 +180,11 @@ def process_decryption(message, method, key=None):
         else:
             bot.send_message(message.chat.id, "Невідомий метод розшифрування.")
             return
+        
         bot.send_message(message.chat.id, f"Розшифрований текст ({method}): {decrypted_text}")
     except Exception as e:
         bot.send_message(message.chat.id, "Помилка! Невірний формат або ключ.")
+    
     return_to_main_menu(message.chat.id)
 
 if __name__ == "__main__":

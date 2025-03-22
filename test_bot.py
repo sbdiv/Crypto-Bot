@@ -36,5 +36,11 @@ class TestCipherFunctions(unittest.TestCase):
         decrypted = cipher.decrypt(encrypted).decode()
         self.assertEqual(text, decrypted)
 
+    def test_is_english(self):
+        self.assertTrue(is_english("Hello world"))
+        self.assertFalse(is_english("Привіт світ"))
+        self.assertFalse(is_english("こんにちは世界"))
+        self.assertTrue(is_english("Good morning!"))
+
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,8 @@ from cryptography.fernet import Fernet
 import os
 from dotenv import load_dotenv
 from langdetect import detect, LangDetectException
+import string
+
 
 load_dotenv()
 
@@ -15,16 +17,8 @@ KEY = Fernet.generate_key()
 cipher = Fernet(KEY)
 
 def is_english(text):
-    try:
-        # Використовуємо langdetect для визначення мови
-        return detect(text) == 'en'
-    except LangDetectException:
-        return False
-
-    # Додатково перевіряємо, чи містить текст лише латинські символи
-    if re.match("^[A-Za-z0-9\s,.!?;:'\"-]*$", text):
-        return True
-    return False
+    allowed_characters = string.ascii_letters + string.digits + " ,.!?;:'\"()-"
+    return all(char in allowed_characters for char in text)
 
 def caesar_cipher(text, shift):
     result = ""

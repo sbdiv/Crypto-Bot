@@ -38,6 +38,10 @@ jobs:
         run: |
           pip install pytest
           pytest test_bot.py --cov=main --cov-report=xml
+          
+      - name: Display test results
+        run: |
+          pytest test_bot.py --cov=main --cov-report=term
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
